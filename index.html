@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f2eb">
+	<title>BMI Calculator</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--paper: #f4f2eb;
+			--ink: #252923;
+			--muted: #74786f;
+			--line: #deded4;
+			--panel: #fffefa;
+			--green: #406c4c;
+			--green-soft: #e2eddf;
+			--gold: #e6b852;
+			--coral: #d77b62;
+			font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			min-height: 100vh;
+			margin: 0;
+			padding: 32px 20px;
+			color: var(--ink);
+			background-color: var(--paper);
+			background-image: linear-gradient(120deg, transparent 0 62%, rgba(218, 222, 204, 0.35) 62% 62.2%, transparent 62.2%), radial-gradient(#d9d9ce 0.7px, transparent 0.7px);
+			background-size: 100% 100%, 18px 18px;
+		}
+
+		main {
+			width: min(100%, 960px);
+			margin: 0 auto;
+			animation: arrive 450ms ease-out both;
+		}
+
+		@keyframes arrive {
+			from { opacity: 0; transform: translateY(10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 4px 0 24px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.header-left {
+			display: flex;
+			align-items: center;
+			gap: 18px;
+		}
+
+		.menu-wrap { position: relative; }
+
+		.menu-trigger {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			min-height: 38px;
+			padding: 0 11px;
+			border: 1px solid var(--line);
+			border-radius: 4px;
+			color: var(--ink);
+			background: var(--panel);
+			font: inherit;
+			font-size: 13px;
+			font-weight: 650;
+			cursor: pointer;
+		}
+
+		.menu-trigger:hover { background: #f7f7f1; }
+
+		.menu-icon {
+			font-size: 19px;
+			line-height: 1;
+		}
+
+		.menu-list {
+			position: absolute;
+			z-index: 5;
+			top: calc(100% + 8px);
+			left: 0;
+			width: 218px;
+			padding: 5px;
+			border: 1px solid var(--line);
+			border-radius: 5px;
+			background: var(--panel);
+			box-shadow: 0 12px 30px rgba(48, 54, 39, 0.13);
+		}
+
+		.menu-list button {
+			width: 100%;
+			padding: 11px 10px;
+			border: 0;
+			border-radius: 3px;
+			color: var(--ink);
+			background: transparent;
+			font: inherit;
+			font-size: 13px;
+			text-align: left;
+			cursor: pointer;
+		}
+
+		.menu-list button:hover,
+		.menu-list button[aria-current="page"] { background: var(--green-soft); }
+
+		.menu-trigger:focus-visible,
+		.menu-list button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+
+		.wordmark {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 13px;
+			font-weight: 750;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.mark {
+			width: 20px;
+			height: 20px;
+			border: 2px solid var(--green);
+			border-radius: 50%;
+			position: relative;
+		}
+
+		.mark::after {
+			position: absolute;
+			inset: 4px;
+			border-radius: 50%;
+			background: var(--gold);
+			content: "";
+		}
+
+		.header-note {
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		.layout {
+			display: grid;
+			grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+			gap: clamp(36px, 7vw, 84px);
+			align-items: start;
+			padding: clamp(38px, 7vw, 72px) 0 36px;
+		}
+
+		.eyebrow {
+			margin: 0 0 14px;
+			color: var(--green);
+			font-size: 12px;
+			font-weight: 750;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+		}
+
+		h1 {
+			max-width: 480px;
+			margin: 0;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: clamp(42px, 6vw, 64px);
+			font-weight: 500;
+			line-height: 0.99;
+			letter-spacing: 0;
+		}
+
+		.intro {
+			max-width: 410px;
+			margin: 20px 0 0;
+			color: var(--muted);
+			font-size: 16px;
+			line-height: 1.65;
+		}
+
+		.form-panel {
+			padding: 24px;
+			border: 1px solid var(--line);
+			border-radius: 7px;
+			background: var(--panel);
+			box-shadow: 0 14px 40px rgba(48, 54, 39, 0.06);
+		}
+
+		.form-heading {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 14px;
+			margin-bottom: 22px;
+		}
+
+		h2 {
+			margin: 0;
+			font-size: 17px;
+			font-weight: 700;
+		}
+
+		.unit-switch {
+			display: inline-grid;
+			grid-template-columns: 1fr 1fr;
+			padding: 3px;
+			border: 1px solid var(--line);
+			border-radius: 5px;
+			background: #f5f5ef;
+		}
+
+		.unit-switch button {
+			min-height: 32px;
+			padding: 0 10px;
+			border: 0;
+			border-radius: 3px;
+			color: var(--muted);
+			background: transparent;
+			font: inherit;
+			font-size: 12px;
+			font-weight: 700;
+			cursor: pointer;
+		}
+
+		.unit-switch button[aria-pressed="true"] {
+			color: var(--ink);
+			background: white;
+			box-shadow: 0 1px 4px rgba(30, 35, 25, 0.12);
+		}
+
+		.fields { display: grid; gap: 17px; }
+
+		.field-label {
+			display: block;
+			margin-bottom: 7px;
+			font-size: 13px;
+			font-weight: 650;
+		}
+
+		.input-row {
+			display: grid;
+			grid-template-columns: 1fr auto;
+			align-items: center;
+			border: 1px solid #d7d9ce;
+			border-radius: 4px;
+			background: white;
+			transition: border-color 120ms ease, box-shadow 120ms ease;
+		}
+
+		.input-row:focus-within {
+			border-color: var(--green);
+			box-shadow: 0 0 0 3px rgba(64, 108, 76, 0.12);
+		}
+
+		.input-row input {
+			width: 100%;
+			min-width: 0;
+			min-height: 48px;
+			padding: 0 12px;
+			border: 0;
+			outline: 0;
+			color: var(--ink);
+			background: transparent;
+			font: inherit;
+			font-size: 17px;
+		}
+
+		.input-row input::placeholder { color: #a3a69c; }
+
+		.unit {
+			padding: 0 13px;
+			color: var(--muted);
+			font-size: 12px;
+		}
+
+		.height-pair {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 9px;
+		}
+
+		.height-pair .input-row { min-width: 0; }
+
+		.error {
+			min-height: 19px;
+			margin: 14px 0 0;
+			color: #a53f31;
+			font-size: 12px;
+		}
+
+		.result {
+			margin-top: 3px;
+			padding-top: 18px;
+			border-top: 1px solid var(--line);
+		}
+
+		.report {
+			margin: 17px 0 0;
+			padding: 13px 14px;
+			border-left: 3px solid var(--green);
+			color: #4f574c;
+			background: #f2f5ed;
+			font-size: 13px;
+			line-height: 1.6;
+		}
+
+		.result-top {
+			display: flex;
+			align-items: end;
+			justify-content: space-between;
+			gap: 14px;
+		}
+
+		.result-label {
+			margin: 0 0 5px;
+			color: var(--muted);
+			font-size: 12px;
+		}
+
+		.bmi-value {
+			margin: 0;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: 48px;
+			line-height: 1;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.category {
+			padding: 7px 10px;
+			border-radius: 3px;
+			color: var(--muted);
+			background: #f0f0e9;
+			font-size: 12px;
+			font-weight: 700;
+			text-align: center;
+		}
+
+		.category[data-state="healthy"] { color: #315c3d; background: var(--green-soft); }
+		.category[data-state="caution"] { color: #765311; background: #f7edcf; }
+		.category[data-state="high"] { color: #8a422f; background: #f5e1d9; }
+
+		.scale { margin-top: 22px; }
+		.scale-bar {
+			position: relative;
+			display: grid;
+			grid-template-columns: 17fr 25fr 10fr 48fr;
+			gap: 3px;
+			height: 9px;
+			border-radius: 8px;
+		}
+
+		.scale-bar span { border-radius: 8px; }
+		.scale-bar span:nth-child(1) { background: #e2c67a; }
+		.scale-bar span:nth-child(2) { background: #6b9b70; }
+		.scale-bar span:nth-child(3) { background: #d6a05b; }
+		.scale-bar span:nth-child(4) { background: #d47d66; }
+
+		.marker {
+			position: absolute;
+			top: -5px;
+			left: 0;
+			width: 3px;
+			height: 19px;
+			border-radius: 2px;
+			background: var(--ink);
+			transform: translateX(-50%);
+			transition: left 180ms ease;
+		}
+
+		.scale-labels {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 8px;
+			color: var(--muted);
+			font-size: 10px;
+		}
+
+		.scale-labels span { max-width: 25%; }
+		.scale-labels span:nth-child(2), .scale-labels span:nth-child(3) { text-align: center; }
+		.scale-labels span:last-child { text-align: right; }
+
+		.disclaimer {
+			max-width: 690px;
+			margin: 0;
+			padding: 17px 0 0;
+			border-top: 1px solid var(--line);
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.6;
+		}
+
+		.tool-view {
+			width: min(100%, 760px);
+			margin: 0 auto;
+			padding: clamp(38px, 7vw, 72px) 0 36px;
+		}
+
+		.tool-view h1 { max-width: 650px; }
+
+		.tool-panel {
+			margin-top: 28px;
+			padding: 24px;
+			border: 1px solid var(--line);
+			border-radius: 7px;
+			background: var(--panel);
+			box-shadow: 0 14px 40px rgba(48, 54, 39, 0.06);
+		}
+
+		.tool-panel .fields { max-width: 520px; }
+
+		.primary-button {
+			min-height: 44px;
+			margin-top: 18px;
+			padding: 0 18px;
+			border: 0;
+			border-radius: 4px;
+			color: white;
+			background: var(--green);
+			font: inherit;
+			font-size: 13px;
+			font-weight: 700;
+			cursor: pointer;
+		}
+
+		.primary-button:hover { background: #31583c; }
+		.primary-button:focus-visible { outline: 3px solid #8aa889; outline-offset: 2px; }
+
+		.age-result {
+			margin-top: 22px;
+			padding: 18px;
+			border-left: 3px solid var(--gold);
+			background: #f8f4e8;
+		}
+
+		.age-number {
+			margin: 0;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: 34px;
+		}
+
+		.age-detail {
+			margin: 6px 0 0;
+			color: var(--muted);
+			font-size: 13px;
+			line-height: 1.6;
+		}
+
+		.question-grid {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 18px;
+		}
+
+		.question-grid .field-label { margin-bottom: 8px; }
+
+		.question-grid select {
+			width: 100%;
+			min-height: 46px;
+			padding: 0 12px;
+			border: 1px solid #d7d9ce;
+			border-radius: 4px;
+			color: var(--ink);
+			background: white;
+			font: inherit;
+			font-size: 14px;
+		}
+
+		.question-grid select:focus-visible { outline: 3px solid rgba(64, 108, 76, 0.25); border-color: var(--green); }
+
+		.tips-list {
+			display: grid;
+			gap: 12px;
+			margin: 20px 0 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.tips-list li {
+			padding: 13px 14px;
+			border-left: 3px solid var(--green);
+			color: #4f574c;
+			background: #f2f5ed;
+			font-size: 13px;
+			line-height: 1.6;
+		}
+
+		.tips-note {
+			margin: 16px 0 0;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.6;
+		}
+
+		[hidden] { display: none !important; }
+
+		@media (max-width: 700px) {
+			body { padding: 20px 16px; }
+			header { padding-bottom: 18px; }
+			.header-note { font-size: 11px; }
+			.header-left { gap: 10px; }
+			.wordmark { gap: 7px; font-size: 11px; }
+			.layout { grid-template-columns: 1fr; gap: 28px; padding: 38px 0 24px; }
+			h1 { max-width: 430px; font-size: clamp(42px, 12vw, 58px); }
+			.intro { margin-top: 13px; font-size: 15px; }
+			.form-panel { padding: 20px; }
+			.tool-view { padding: 38px 0 24px; }
+			.tool-panel { padding: 20px; }
+		}
+
+		@media (max-width: 460px) {
+			.header-note { display: none; }
+			.question-grid { grid-template-columns: 1fr; gap: 15px; }
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<header>
+			<div class="header-left">
+				<div class="menu-wrap">
+					<button class="menu-trigger" id="menu-trigger" type="button" aria-expanded="false" aria-controls="menu-list">
+						<span class="menu-icon" aria-hidden="true">☰</span> Menu
+					</button>
+					<nav class="menu-list" id="menu-list" aria-label="Main menu" hidden>
+						<button type="button" data-view="bmi-view" aria-current="page">BMI calculator</button>
+						<button type="button" data-view="age-view">Age calculator</button>
+						<button type="button" data-view="tips-view">Healthy body tips</button>
+					</nav>
+				</div>
+				<div class="wordmark"><span class="mark" aria-hidden="true"></span>Well / Measure</div>
+			</div>
+			<div class="header-note">A simple health reference</div>
+		</header>
+
+		<div class="layout" id="bmi-view" data-page-view>
+			<section aria-labelledby="page-title">
+				<p class="eyebrow">Body mass index</p>
+				<h1 id="page-title">A clearer picture, one number.</h1>
+				<p class="intro">Enter your height and weight to calculate your BMI and see where it falls within standard adult ranges.</p>
+			</section>
+
+			<section class="form-panel" aria-labelledby="form-title">
+				<div class="form-heading">
+					<h2 id="form-title">Your measurements</h2>
+					<div class="unit-switch" role="group" aria-label="Measurement units">
+						<button type="button" data-units="metric" aria-pressed="true">Metric</button>
+						<button type="button" data-units="imperial" aria-pressed="false">Imperial</button>
+					</div>
+				</div>
+				<div class="form-heading" style="margin-top: -8px; margin-bottom: 16px">
+					<div class="unit-switch" role="group" aria-label="BMI age group">
+						<button type="button" data-bmi-audience="adult" aria-pressed="true">Adult</button>
+						<button type="button" data-bmi-audience="youth" aria-pressed="false">Child / teen</button>
+					</div>
+					<span class="tips-note" id="bmi-audience-note" style="margin: 0">Adult ranges</span>
+				</div>
+
+				<form id="bmi-form" novalidate>
+					<div class="fields">
+						<div>
+							<label class="field-label" for="height-cm" id="height-label">Height</label>
+							<div class="input-row" id="metric-height">
+								<input id="height-cm" name="height-cm" type="number" min="50" max="275" step="any" inputmode="decimal" placeholder="e.g. 170" autocomplete="off">
+								<span class="unit">cm</span>
+							</div>
+							<div class="height-pair" id="imperial-height" hidden>
+								<div class="input-row">
+									<input id="height-ft" name="height-ft" type="number" min="1" max="8" step="1" inputmode="numeric" placeholder="5" autocomplete="off" aria-label="Height in feet">
+									<span class="unit">ft</span>
+								</div>
+								<div class="input-row">
+									<input id="height-in" name="height-in" type="number" min="0" max="11.9" step="any" inputmode="decimal" placeholder="7" autocomplete="off" aria-label="Additional inches">
+									<span class="unit">in</span>
+								</div>
+							</div>
+						</div>
+
+						<div>
+							<label class="field-label" for="weight" id="weight-label">Weight</label>
+							<div class="input-row">
+								<input id="weight" name="weight" type="number" min="1" max="700" step="any" inputmode="decimal" placeholder="e.g. 65" autocomplete="off">
+								<span class="unit" id="weight-unit">kg</span>
+							</div>
+						</div>
+					</div>
+					<p class="error" id="error" role="alert" aria-live="polite"></p>
+				</form>
+
+				<section class="result" aria-label="BMI result" aria-live="polite">
+					<div class="result-top">
+						<div>
+							<p class="result-label">Your BMI</p>
+							<p class="bmi-value" id="bmi-value">--</p>
+						</div>
+						<div class="category" id="category" data-state="neutral">Enter measurements</div>
+					</div>
+					<div class="scale" aria-label="Adult BMI scale">
+						<div class="scale-bar" aria-hidden="true">
+							<span></span><span></span><span></span><span></span>
+							<i class="marker" id="marker" hidden></i>
+						</div>
+						<div class="scale-labels" aria-hidden="true">
+							<span>Below 18.5</span><span>18.5–24.9</span><span>25–29.9</span><span>30+</span>
+						</div>
+					</div>
+					<p class="report" id="report" aria-live="polite">For most adults, a BMI from 18.5 to 24.9 is the standard healthy range. Enter your measurements to see the corresponding weight range for your height.</p>
+				</section>
+			</section>
+		</div>
+
+		<section class="tool-view" id="age-view" data-page-view hidden aria-labelledby="age-title">
+			<p class="eyebrow">Age calculator</p>
+			<h1 id="age-title">Your years, counted precisely.</h1>
+			<p class="intro">Enter your date of birth to see your age in years, months, and days.</p>
+			<div class="tool-panel">
+				<form id="age-form" novalidate>
+					<label class="field-label" for="birth-date">Date of birth</label>
+					<div class="input-row" style="max-width: 360px">
+						<input id="birth-date" name="birth-date" type="date" required aria-describedby="age-error">
+					</div>
+					<p class="error" id="age-error" role="alert" aria-live="polite"></p>
+					<button class="primary-button" type="submit">Calculate age</button>
+				</form>
+				<div class="age-result" id="age-result" aria-live="polite" hidden>
+					<p class="age-number" id="age-number"></p>
+					<p class="age-detail" id="age-detail"></p>
+				</div>
+			</div>
+		</section>
+
+		<section class="tool-view" id="tips-view" data-page-view hidden aria-labelledby="tips-title">
+			<p class="eyebrow">Everyday wellbeing</p>
+			<h1 id="tips-title">Small habits, made personal.</h1>
+			<p class="intro">A few answers help highlight practical places to start. No calorie counting or one-size-fits-all plans.</p>
+			<div class="tool-panel">
+				<form id="tips-form">
+					<div class="question-grid">
+						<div>
+							<label class="field-label" for="tips-audience">Who are these tips for?</label>
+							<select id="tips-audience" name="audience">
+								<option value="adult" selected>Adult (18+)</option>
+								<option value="child-young">Young child (2–5)</option>
+								<option value="child">Child (6–12)</option>
+								<option value="teen">Teen (13–17)</option>
+							</select>
+						</div>
+						<div>
+							<label class="field-label" for="activity" id="activity-label">How often do you move for 30 minutes?</label>
+							<select id="activity" name="activity">
+								<option value="often">5 or more days a week</option>
+								<option value="sometimes">2–4 days a week</option>
+								<option value="rarely" selected>0–1 day a week</option>
+							</select>
+						</div>
+						<div>
+							<label class="field-label" for="sleep" id="sleep-label">How much do you usually sleep?</label>
+							<select id="sleep" name="sleep">
+								<option value="enough">7–9 hours</option>
+								<option value="short" selected>Less than 7 hours</option>
+								<option value="long">More than 9 hours</option>
+							</select>
+						</div>
+						<div>
+							<label class="field-label" for="produce">How often do you eat fruits or vegetables?</label>
+							<select id="produce" name="produce">
+								<option value="most">With most meals</option>
+								<option value="some" selected>Some meals</option>
+								<option value="few">Not often</option>
+							</select>
+						</div>
+						<div>
+							<label class="field-label" for="water">How often do you drink water through the day?</label>
+							<select id="water" name="water">
+								<option value="steady">Regularly</option>
+								<option value="sometimes" selected>Sometimes forget</option>
+								<option value="rarely">Rarely</option>
+							</select>
+						</div>
+						<div>
+							<label class="field-label" for="stress" id="stress-label">How often do you feel stressed or overwhelmed?</label>
+							<select id="stress" name="stress">
+								<option value="low">Rarely</option>
+								<option value="some" selected>Sometimes</option>
+								<option value="often">Often</option>
+							</select>
+						</div>
+					</div>
+					<button class="primary-button" type="submit">Show my tips</button>
+				</form>
+				<div id="tips-result" aria-live="polite" hidden>
+					<ul class="tips-list" id="tips-list"></ul>
+					<p class="tips-note">These are general wellbeing ideas, not medical advice. Choose changes that feel safe and realistic for you; a health professional can help tailor advice to your needs.</p>
+				</div>
+			</div>
+		</section>
+
+		<p class="disclaimer" id="disclaimer">BMI is a screening measure, not a diagnosis. It does not distinguish muscle from fat or account for every individual difference. Adult categories shown; consult a qualified health professional for personal guidance.</p>
+	</main>
+
+	<script>
+		const form = document.querySelector("#bmi-form");
+		const metricButton = document.querySelector('[data-units="metric"]');
+		const imperialButton = document.querySelector('[data-units="imperial"]');
+		const metricHeight = document.querySelector("#metric-height");
+		const imperialHeight = document.querySelector("#imperial-height");
+		const heightLabel = document.querySelector("#height-label");
+		const weightInput = document.querySelector("#weight");
+		const weightUnit = document.querySelector("#weight-unit");
+		const heightCm = document.querySelector("#height-cm");
+		const heightFt = document.querySelector("#height-ft");
+		const heightIn = document.querySelector("#height-in");
+		const bmiValue = document.querySelector("#bmi-value");
+		const category = document.querySelector("#category");
+		const marker = document.querySelector("#marker");
+		const error = document.querySelector("#error");
+		const report = document.querySelector("#report");
+		let units = "metric";
+		const menuTrigger = document.querySelector("#menu-trigger");
+		const menuList = document.querySelector("#menu-list");
+		const disclaimer = document.querySelector("#disclaimer");
+		const pageViews = [...document.querySelectorAll("[data-page-view]")];
+		const menuItems = [...menuList.querySelectorAll("[data-view]")];
+		const bmiAudienceButtons = [...document.querySelectorAll("[data-bmi-audience]")];
+		const bmiAudienceNote = document.querySelector("#bmi-audience-note");
+		const bmiScale = document.querySelector(".scale");
+		let bmiAudience = "adult";
+
+		bmiAudienceButtons.forEach((button) => button.addEventListener("click", () => {
+			bmiAudience = button.dataset.bmiAudience;
+			bmiAudienceButtons.forEach((option) => option.setAttribute("aria-pressed", String(option === button)));
+			const isAdult = bmiAudience === "adult";
+			bmiAudienceNote.textContent = isAdult ? "Adult ranges" : "For ages 2–19";
+			bmiScale.hidden = !isAdult;
+			updateResult();
+		}));
+
+		function setView(viewId) {
+			pageViews.forEach((view) => { view.hidden = view.id !== viewId; });
+			menuItems.forEach((item) => {
+				if (item.dataset.view === viewId) item.setAttribute("aria-current", "page");
+				else item.removeAttribute("aria-current");
+			});
+			disclaimer.hidden = viewId !== "bmi-view";
+			menuList.hidden = true;
+			menuTrigger.setAttribute("aria-expanded", "false");
+			window.scrollTo({ top: 0, behavior: "smooth" });
+		}
+
+		menuTrigger.addEventListener("click", () => {
+			const expanded = menuTrigger.getAttribute("aria-expanded") === "true";
+			menuTrigger.setAttribute("aria-expanded", String(!expanded));
+			menuList.hidden = expanded;
+		});
+
+		menuItems.forEach((item) => item.addEventListener("click", () => setView(item.dataset.view)));
+		document.addEventListener("click", (event) => {
+			if (!event.target.closest(".menu-wrap")) {
+				menuList.hidden = true;
+				menuTrigger.setAttribute("aria-expanded", "false");
+			}
+		});
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && !menuList.hidden) {
+				menuList.hidden = true;
+				menuTrigger.setAttribute("aria-expanded", "false");
+				menuTrigger.focus();
+			}
+		});
+
+		const birthDateInput = document.querySelector("#birth-date");
+		const ageForm = document.querySelector("#age-form");
+		const ageError = document.querySelector("#age-error");
+		const ageResult = document.querySelector("#age-result");
+		const ageNumber = document.querySelector("#age-number");
+		const ageDetail = document.querySelector("#age-detail");
+		const today = new Date();
+		const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		birthDateInput.max = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+		ageForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			ageError.textContent = "";
+			ageResult.hidden = true;
+			if (!birthDateInput.value) {
+				ageError.textContent = "Choose your date of birth to calculate your age.";
+				return;
+			}
+
+			const [year, month, day] = birthDateInput.value.split("-").map(Number);
+			const birthDate = new Date(year, month - 1, day);
+			if (birthDate > todayLocal || birthDate.getFullYear() !== year || birthDate.getMonth() !== month - 1 || birthDate.getDate() !== day) {
+				ageError.textContent = "Enter a valid date of birth that is not in the future.";
+				return;
+			}
+
+			let years = todayLocal.getFullYear() - year;
+			let months = todayLocal.getMonth() - (month - 1);
+			let days = todayLocal.getDate() - day;
+			if (days < 0) {
+				months -= 1;
+				days += new Date(todayLocal.getFullYear(), todayLocal.getMonth(), 0).getDate();
+			}
+			if (months < 0) {
+				years -= 1;
+				months += 12;
+			}
+
+			ageNumber.textContent = `${years} ${years === 1 ? "year" : "years"}`;
+			ageDetail.textContent = `You are also ${months} ${months === 1 ? "month" : "months"} and ${days} ${days === 1 ? "day" : "days"} old.`;
+			ageResult.hidden = false;
+		});
+
+		const tipsForm = document.querySelector("#tips-form");
+		const tipsResult = document.querySelector("#tips-result");
+		const tipsList = document.querySelector("#tips-list");
+		const tipsAudience = document.querySelector("#tips-audience");
+		const sleepInput = document.querySelector("#sleep");
+		const sleepLabel = document.querySelector("#sleep-label");
+		const activityLabel = document.querySelector("#activity-label");
+		const stressLabel = document.querySelector("#stress-label");
+
+		function updateSleepChoices() {
+			const ageBand = tipsAudience.value;
+			const sleepHours = {
+				"child-young": ["10–13 hours", "Less than 10 hours", "More than 13 hours"],
+				child: ["9–12 hours", "Less than 9 hours", "More than 12 hours"],
+				teen: ["8–10 hours", "Less than 8 hours", "More than 10 hours"],
+				adult: ["7–9 hours", "Less than 7 hours", "More than 9 hours"]
+			}[ageBand];
+			const previousValue = sleepInput.value;
+			sleepInput.replaceChildren(...[
+				["enough", sleepHours[0]],
+				["short", sleepHours[1]],
+				["long", sleepHours[2]]
+			].map(([value, text]) => {
+				const option = document.createElement("option");
+				option.value = value;
+				option.textContent = text;
+				return option;
+			}));
+			sleepInput.value = previousValue || "short";
+			sleepLabel.textContent = ageBand === "adult"
+				? "How much do you usually sleep?"
+				: "How much does the child usually sleep?";
+			activityLabel.textContent = ageBand === "adult"
+				? "How often do you move for 30 minutes?"
+				: ageBand === "teen"
+					? "How often does the teen get enjoyable movement?"
+					: "How often does the child get active play?";
+			stressLabel.textContent = ageBand === "adult"
+				? "How often do you feel stressed or overwhelmed?"
+				: "How often does the child seem stressed or overwhelmed?";
+		}
+
+		tipsAudience.addEventListener("change", updateSleepChoices);
+		updateSleepChoices();
+
+		tipsForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const answers = new FormData(tipsForm);
+			const audience = answers.get("audience");
+			const isChild = audience === "child-young" || audience === "child";
+			const isYouth = isChild || audience === "teen";
+			const tips = [];
+
+			if (isChild) {
+				tips.push("Make room for enjoyable active play each day, such as dancing, playground time, or a family walk. Keep it playful and follow the child's abilities.");
+			} else if (audience === "teen" && answers.get("activity") === "rarely") {
+				tips.push("Invite the teen to choose movement they enjoy, such as walking, dancing, or a sport. Build toward regular activity gradually, without pressure.");
+			} else if (answers.get("activity") === "rarely") {
+				tips.push("Start with movement that feels manageable, such as a 10-minute walk. Add time gradually; some activity is better than none.");
+			} else if (answers.get("activity") === "sometimes") {
+				tips.push(isYouth
+					? "Keep movement enjoyable and varied. A family walk, active trip, or favorite sport can make it easier to stay involved."
+					: "You already have a movement routine. Try adding a short walk or gentle strength activity on one more day, if it feels right.");
+			} else {
+				tips.push(isYouth
+					? "Keep movement enjoyable and varied, with time to rest. Let the child or teen help choose activities they like."
+					: "Keep a steady routine and include rest or lighter days. Choose activities you enjoy and can sustain.");
+			}
+
+			if (answers.get("sleep") === "short") {
+				const sleepTarget = {
+					"child-young": "10–13 hours for ages 2–5",
+					child: "9–12 hours for ages 6–12",
+					teen: "8–10 hours for teens",
+					adult: "at least 7 hours for most adults"
+				}[audience];
+				tips.push(`A regular, calm bedtime routine may help. Typical sleep guidance is ${sleepTarget}; individual needs can vary.`);
+			} else if (answers.get("sleep") === "long") {
+				tips.push(isYouth
+					? "Sleep needs vary as children grow. If sleep patterns change or the child still seems tired, ask their healthcare professional for guidance."
+					: "Sleep needs differ. If long sleep is new or you still feel tired, consider discussing it with a healthcare professional.");
+			} else {
+				tips.push(isYouth
+					? "That sleep duration is within typical guidance for this age group. A steady bedtime and wake time can help."
+					: "Your reported sleep duration is in the typical adult recommendation. A regular schedule can help maintain it.");
+			}
+
+			if (answers.get("produce") === "few") {
+				tips.push(isYouth
+					? "Offer a fruit or vegetable with a meal or snack, and let the child help choose or prepare it. Fresh, frozen, and canned options can all work."
+					: "Try adding one fruit or vegetable you like to a meal or snack. Fresh, frozen, and canned options can all work.");
+			} else if (answers.get("produce") === "some") {
+				tips.push(isYouth
+					? "Try including a fruit or vegetable with another meal, without pressure. Familiar choices and helping in the kitchen can make trying foods easier."
+					: "A simple next step is adding a fruit or vegetable to one more meal each day, using options that suit your budget and preferences.");
+			} else {
+				tips.push(isYouth
+					? "Keep offering a variety of foods the child enjoys, alongside chances to explore new tastes at their own pace."
+					: "Keep including fruits and vegetables you enjoy, alongside a varied mix of other foods.");
+			}
+
+			if (answers.get("water") !== "steady") {
+				tips.push("Keep water visible or pair a drink with regular routines such as meals. Fluid needs vary with activity, climate, and health.");
+			} else {
+				tips.push("Keep drinking regularly and adjust for heat or activity. You do not need to force a fixed amount if you have clinician-provided fluid guidance.");
+			}
+
+			if (answers.get("stress") === "often") {
+				tips.push(isYouth
+					? "Make time to listen without judgment and ask what support would help. If distress persists or feels serious, involve a trusted adult and healthcare professional."
+					: "Try a brief reset you find calming, such as slow breathing, a quiet walk, or contacting someone you trust. Seek support if stress feels hard to manage.");
+			} else if (answers.get("stress") === "some") {
+				tips.push(isYouth
+					? "A predictable pause can help: try a quiet activity together, a few slow breaths, or time outdoors."
+					: "Build in a small recovery moment during the day, such as stretching, stepping outside, or a few slow breaths.");
+			} else {
+				tips.push(isYouth
+					? "Keep making room for play, rest, and supportive relationships with family and friends."
+					: "Keep making room for the activities and relationships that help you feel rested and connected.");
+			}
+
+			tipsList.replaceChildren(...tips.map((tip) => {
+				const item = document.createElement("li");
+				item.textContent = tip;
+				return item;
+			}));
+			tipsResult.hidden = false;
+		});
+
+		function getMeasurements() {
+			const enteredWeight = Number(weightInput.value);
+			const weightKg = units === "metric" ? enteredWeight : enteredWeight * 0.45359237;
+			let heightMeters;
+
+			if (units === "metric") {
+				heightMeters = Number(heightCm.value) / 100;
+			} else {
+				const feet = Number(heightFt.value);
+				const inches = Number(heightIn.value || 0);
+				heightMeters = (feet * 12 + inches) * 0.0254;
+			}
+
+			return { weightKg, heightMeters };
+		}
+
+		function updateResult() {
+			const hasWeight = weightInput.value !== "";
+			const hasHeight = units === "metric"
+				? heightCm.value !== ""
+				: heightFt.value !== "" || heightIn.value !== "";
+
+			error.textContent = "";
+			if (!hasWeight || !hasHeight) {
+				bmiValue.textContent = "--";
+				category.textContent = bmiAudience === "adult" ? "Enter measurements" : "Youth BMI needs interpretation";
+				category.dataset.state = bmiAudience === "adult" ? "neutral" : "caution";
+				marker.hidden = true;
+				report.textContent = bmiAudience === "adult"
+					? "For most adults, a BMI from 18.5 to 24.9 is the standard healthy range. Enter your measurements to see the corresponding weight range for your height."
+					: "For ages 2–19, BMI is interpreted using age- and sex-specific percentiles, not adult ranges. Enter measurements for the BMI number, then ask a pediatric healthcare professional to interpret it.";
+				return;
+			}
+
+			const { weightKg, heightMeters } = getMeasurements();
+			if (!Number.isFinite(weightKg) || weightKg <= 0 || !Number.isFinite(heightMeters) || heightMeters <= 0) {
+				error.textContent = "Enter a height and weight greater than zero.";
+				bmiValue.textContent = "--";
+				category.textContent = bmiAudience === "adult" ? "Check your entries" : "Youth BMI needs interpretation";
+				category.dataset.state = "neutral";
+				marker.hidden = true;
+				report.textContent = bmiAudience === "adult"
+					? "Enter a valid height and weight to calculate your adult BMI report."
+					: "Enter a valid height and weight for the BMI number. For ages 2–19, a pediatric professional should interpret BMI using an age- and sex-specific percentile.";
+				return;
+			}
+
+			const bmi = weightKg / (heightMeters * heightMeters);
+			bmiValue.textContent = bmi.toFixed(1);
+			const unitWeight = (kilograms) => {
+				const value = units === "metric" ? kilograms : kilograms / 0.45359237;
+				return `${value.toFixed(1)} ${units === "metric" ? "kg" : "lb"}`;
+			};
+			if (bmiAudience === "youth") {
+				marker.hidden = true;
+				category.textContent = "Needs age-based assessment";
+				category.dataset.state = "caution";
+				report.textContent = `BMI value: ${bmi.toFixed(1)}. For children and teens ages 2–19, BMI is interpreted using age- and sex-specific percentiles, not adult ranges. Ask a pediatric healthcare professional to interpret this result; it is not a diagnosis.`;
+				return;
+			}
+
+			const healthyMinKg = 18.5 * heightMeters * heightMeters;
+			const healthyMaxKg = 24.9 * heightMeters * heightMeters;
+			marker.style.left = `${Math.min(100, Math.max(0, ((bmi - 10) / 30) * 100))}%`;
+			marker.hidden = false;
+			const enteredWeightKg = getMeasurements().weightKg;
+			let comparison;
+			if (enteredWeightKg < healthyMinKg) {
+				comparison = `Your entered weight is about ${unitWeight(healthyMinKg - enteredWeightKg)} below that range.`;
+			} else if (enteredWeightKg > healthyMaxKg) {
+				comparison = `Your entered weight is about ${unitWeight(enteredWeightKg - healthyMaxKg)} above that range.`;
+			} else {
+				comparison = "Your entered weight is within that range.";
+			}
+			report.textContent = `For most adults, the standard healthy BMI range is 18.5–24.9. At your height, that corresponds to about ${unitWeight(healthyMinKg)}–${unitWeight(healthyMaxKg)}. ${comparison}`;
+
+			if (bmi < 18.5) {
+				category.textContent = "Below standard range";
+				category.dataset.state = "caution";
+			} else if (bmi < 25) {
+				category.textContent = "Standard range";
+				category.dataset.state = "healthy";
+			} else if (bmi < 30) {
+				category.textContent = "Above standard range";
+				category.dataset.state = "caution";
+			} else {
+				category.textContent = "High range";
+				category.dataset.state = "high";
+			}
+		}
+
+		function setUnits(nextUnits) {
+			if (units === nextUnits) return;
+
+			const current = getMeasurements();
+			units = nextUnits;
+			const isMetric = units === "metric";
+			metricButton.setAttribute("aria-pressed", String(isMetric));
+			imperialButton.setAttribute("aria-pressed", String(!isMetric));
+			metricHeight.hidden = !isMetric;
+			imperialHeight.hidden = isMetric;
+			heightLabel.htmlFor = isMetric ? "height-cm" : "height-ft";
+			weightUnit.textContent = isMetric ? "kg" : "lb";
+			weightInput.max = isMetric ? "700" : "1543";
+			heightCm.value = "";
+			heightFt.value = "";
+			heightIn.value = "";
+			weightInput.value = "";
+
+			if (Number.isFinite(current.heightMeters) && current.heightMeters > 0) {
+				if (isMetric) {
+					heightCm.value = (current.heightMeters * 100).toFixed(1).replace(/\.0$/, "");
+				} else {
+					const totalInches = current.heightMeters / 0.0254;
+					heightFt.value = Math.floor(totalInches / 12);
+					heightIn.value = (totalInches % 12).toFixed(1).replace(/\.0$/, "");
+				}
+			}
+
+			if (Number.isFinite(current.weightKg) && current.weightKg > 0) {
+				const convertedWeight = isMetric ? current.weightKg : current.weightKg / 0.45359237;
+				weightInput.value = convertedWeight.toFixed(1).replace(/\.0$/, "");
+			}
+			updateResult();
+		}
+
+		form.addEventListener("input", updateResult);
+		metricButton.addEventListener("click", () => setUnits("metric"));
+		imperialButton.addEventListener("click", () => setUnits("imperial"));
+	</script>
+</body>
+</html>
